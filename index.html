@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>С Днем Рождения!</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            background-color: #74b9ff;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .scene {
+            text-align: center;
+        }
+
+        /* --- НОВАЯ ИСПРАВЛЕННАЯ СТРУКТУРА КОНВЕРТА --- */
+
+        .envelope-wrapper {
+            position: relative;
+            width: 300px;
+            height: 200px;
+        }
+
+        /* Клик по этой обертке будет работать всегда */
+        .envelope-wrapper .clickable-area {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            z-index: 10; /* Самый верхний слой для клика */
+        }
+
+        /* Задняя часть конверта */
+        .back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: #ffc259;
+            border-radius: 10px;
+            z-index: 1;
+        }
+
+        /* Письмо. Теперь оно изначально спрятано */
+        .letter {
+            position: absolute;
+            bottom: 0;
+            left: 5%;
+            width: 90%;
+            height: 95%;
+            background-color: white;
+            border-radius: 5px;
+            z-index: 2;
+            transition: transform 0.5s ease-in-out;
+            /* Начальное положение письма - внутри конверта. Оно будет выезжать ВВЕРХ */
+            transform: translateY(0);
+        }
+
+        /* Передняя стенка конверта, которая прячет письмо */
+        .front {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #fdcb6e;
+            border-radius: 10px;
+            z-index: 3;
+        }
+
+        /* Клапан конверта */
+        .flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background-color: #ffc259;
+            clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+            z-index: 4;
+            transform-origin: top;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        /* АНИМАЦИИ при добавлении класса .open */
+        .envelope-wrapper.open .flap {
+            transform: rotateX(180deg);
+            z-index: 0; /* Убираем клапан назад после открытия */
+        }
+        .envelope-wrapper.open .letter {
+            /* Письмо выезжает ВВЕРХ */
+            transform: translateY(-80px);
+        }
+
+        /* Кнопка "Открыть" */
+        #open-btn {
+            margin-top: 20px;
+            padding: 15px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            border-radius: 50px;
+            background-color: #ff7675;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+        }
+        #open-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+        }
+
+        /* Поздравительная карточка */
+        .card {
+            display: none;
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            text-align: center;
+            max-width: 600px;
+            border-top: 10px solid #4a90e2;
+            animation: fadeIn 0.8s ease-in-out;
+        }
+        h1 { color: #333; font-size: 2.5em; }
+        p { color: #555; font-size: 1.2em; line-height: 1.6; }
+        .signature { margin-top: 30px; font-style: italic; color: #777; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+<audio id="birthday-music" src="/music.mp3"></audio>
+
+<div class="scene" id="envelope-scene">
+    <div class="envelope-wrapper" id="envelope">
+        <!-- Невидимый элемент для надежного клика -->
+        <div class="clickable-area"></div>
+        <!-- Элементы конверта -->
+        <div class="back"></div>
+        <div class="letter"></div>
+        <div class="front"></div>
+        <div class="flap"></div>
+    </div>
+    <button id="open-btn">Открыть конверт</button>
+</div>
+
+<div class="card" id="birthday-card">
+    <h1>С Днем Рождения, дорогой Папа!</h1>
+    <p>Поздравляю тебя с твоим днем! Желаю тебе крепкого здоровья, безграничного счастья, успехов во всех начинаниях и чтобы каждый день был наполнен радостью и теплом.</p>
+    <p>Спасибо тебе за твою любовь, поддержку и мудрость. Ты самый лучший папа на свете!</p>
+    <p class="signature">С любовью, <br> Дима</p>
+</div>
+
+<script>
+    const openBtn = document.getElementById('open-btn');
+    const envelope = document.getElementById('envelope');
+    const envelopeScene = document.getElementById('envelope-scene');
+    const birthdayCard = document.getElementById('birthday-card');
+    const music = document.getElementById('birthday-music');
+    // Находим новую невидимую область для клика
+    const clickableArea = document.querySelector('.clickable-area');
+
+    let isEnvelopeOpened = false; // Переменная, чтобы отследить, открыт ли конверт
+
+    // Действие №1: Нажатие на кнопку
+    openBtn.addEventListener('click', (e) => {
+        // Останавливаем "всплытие" события, чтобы клик по кнопке не считался кликом по конверту
+        e.stopPropagation();
+        envelope.classList.add('open');
+        openBtn.style.display = 'none';
+        isEnvelopeOpened = true; // Отмечаем, что конверт открыт
+    });
+
+    // Действие №2: Клик по области конверта
+    clickableArea.addEventListener('click', () => {
+        // Сработает, только если конверт уже открыт кнопкой
+        if (isEnvelopeOpened) {
+            envelopeScene.style.display = 'none';
+            birthdayCard.style.display = 'block';
+
+            music.play();
+            confetti({
+                particleCount: 150,
+                spread: 90,
+                origin: { y: 0.6 }
+            });
+        }
+    });
+</script>
+
+</body>
+</html>
