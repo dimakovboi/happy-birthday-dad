@@ -20,24 +20,20 @@
             text-align: center;
         }
 
-        /* --- НОВАЯ ИСПРАВЛЕННАЯ СТРУКТУРА КОНВЕРТА --- */
-
         .envelope-wrapper {
             position: relative;
             width: 300px;
             height: 200px;
         }
 
-        /* Клик по этой обертке будет работать всегда */
         .envelope-wrapper .clickable-area {
             position: absolute;
             width: 100%;
             height: 100%;
             cursor: pointer;
-            z-index: 10; /* Самый верхний слой для клика */
+            z-index: 10;
         }
 
-        /* Задняя часть конверта */
         .back {
             position: absolute;
             width: 100%;
@@ -47,7 +43,6 @@
             z-index: 1;
         }
 
-        /* Письмо. Теперь оно изначально спрятано */
         .letter {
             position: absolute;
             bottom: 0;
@@ -58,11 +53,9 @@
             border-radius: 5px;
             z-index: 2;
             transition: transform 0.5s ease-in-out;
-            /* Начальное положение письма - внутри конверта. Оно будет выезжать ВВЕРХ */
             transform: translateY(0);
         }
 
-        /* Передняя стенка конверта, которая прячет письмо */
         .front {
             position: absolute;
             bottom: 0;
@@ -73,7 +66,6 @@
             z-index: 3;
         }
 
-        /* Клапан конверта */
         .flap {
             position: absolute;
             top: 0;
@@ -87,17 +79,14 @@
             transition: transform 0.5s ease-in-out;
         }
 
-        /* АНИМАЦИИ при добавлении класса .open */
         .envelope-wrapper.open .flap {
             transform: rotateX(180deg);
-            z-index: 0; /* Убираем клапан назад после открытия */
+            z-index: 0;
         }
         .envelope-wrapper.open .letter {
-            /* Письмо выезжает ВВЕРХ */
             transform: translateY(-80px);
         }
 
-        /* Кнопка "Открыть" */
         #open-btn {
             margin-top: 20px;
             padding: 15px 30px;
@@ -115,7 +104,6 @@
             box-shadow: 0 6px 15px rgba(0,0,0,0.3);
         }
 
-        /* Поздравительная карточка */
         .card {
             display: none;
             background-color: #ffffff;
@@ -139,13 +127,12 @@
 </head>
 <body>
 
-<audio id="birthday-music" src="/music.mp3"></audio>
+<!-- ИЗМЕНЕНИЕ №1: Убираем слэш в пути, делаем его относительным -->
+<audio id="birthday-music" src="music.mp3"></audio>
 
 <div class="scene" id="envelope-scene">
     <div class="envelope-wrapper" id="envelope">
-        <!-- Невидимый элемент для надежного клика -->
         <div class="clickable-area"></div>
-        <!-- Элементы конверта -->
         <div class="back"></div>
         <div class="letter"></div>
         <div class="front"></div>
@@ -167,28 +154,32 @@
     const envelopeScene = document.getElementById('envelope-scene');
     const birthdayCard = document.getElementById('birthday-card');
     const music = document.getElementById('birthday-music');
-    // Находим новую невидимую область для клика
     const clickableArea = document.querySelector('.clickable-area');
 
-    let isEnvelopeOpened = false; // Переменная, чтобы отследить, открыт ли конверт
+    let isEnvelopeOpened = false;
 
-    // Действие №1: Нажатие на кнопку
     openBtn.addEventListener('click', (e) => {
-        // Останавливаем "всплытие" события, чтобы клик по кнопке не считался кликом по конверту
         e.stopPropagation();
         envelope.classList.add('open');
         openBtn.style.display = 'none';
-        isEnvelopeOpened = true; // Отмечаем, что конверт открыт
+        isEnvelopeOpened = true;
+
+        // ИЗМЕНЕНИЕ №2: "Прогреваем" музыку на первом клике
+        music.load();
     });
 
-    // Действие №2: Клик по области конверта
     clickableArea.addEventListener('click', () => {
-        // Сработает, только если конверт уже открыт кнопкой
         if (isEnvelopeOpened) {
             envelopeScene.style.display = 'none';
             birthdayCard.style.display = 'block';
 
-            music.play();
+            // Пробуем запустить музыку
+            music.play().catch(error => {
+                // Этот код на случай, если браузер все равно заблокирует звук.
+                // Он выведет ошибку в консоль, но не сломает сайт.
+                console.error("Ошибка воспроизведения аудио:", error);
+            });
+
             confetti({
                 particleCount: 150,
                 spread: 90,
