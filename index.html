@@ -2,17 +2,51 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+
+    <!-- ШАГ 1: ВОТ ЭТОТ ВАЖНЫЙ META-ТЕГ ДЛЯ МОБИЛЬНЫХ -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>С Днем Рождения!</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <style>
-        /* Стили CSS остаются без изменений, поэтому я их скрою для краткости */
-        body{background-color:#74b9ff;font-family:'Segoe UI',Tahoma,sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;overflow:hidden}.scene{text-align:center}.envelope-wrapper{position:relative;width:300px;height:200px}.envelope-wrapper .clickable-area{position:absolute;width:100%;height:100%;cursor:pointer;z-index:10}.back{position:absolute;width:100%;height:100%;background-color:#ffc259;border-radius:10px;z-index:1}.letter{position:absolute;bottom:0;left:5%;width:90%;height:95%;background-color:white;border-radius:5px;z-index:2;transition:transform .5s ease-in-out;transform:translateY(0)}.front{position:absolute;bottom:0;width:100%;height:100%;background-color:#fdcb6e;border-radius:10px;z-index:3}.flap{position:absolute;top:0;left:0;width:100%;height:100px;background-color:#ffc259;clip-path:polygon(0 0,100% 0,50% 100%);z-index:4;transform-origin:top;transition:transform .5s ease-in-out}.envelope-wrapper.open .flap{transform:rotateX(180deg);z-index:0}.envelope-wrapper.open .letter{transform:translateY(-80px)}#open-btn{margin-top:20px;padding:15px 30px;font-size:18px;cursor:pointer;border:none;border-radius:50px;background-color:#ff7675;color:white;box-shadow:0 4px 10px rgba(0,0,0,.2);transition:all .3s}#open-btn:hover{transform:translateY(-2px);box-shadow:0 6px 15px rgba(0,0,0,.3)}.card{display:none;background-color:#fff;border-radius:15px;box-shadow:0 10px 25px rgba(0,0,0,.1);padding:40px;text-align:center;max-width:600px;border-top:10px solid #4a90e2;animation:fadeIn .8s ease-in-out}h1{color:#333;font-size:2.5em}p{color:#555;font-size:1.2em;line-height:1.6}.signature{margin-top:30px;font-style:italic;color:#777}@keyframes fadeIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+        /* Стили CSS остаются почти без изменений */
+        body{background-color:#74b9ff;font-family:'Segoe UI',Tahoma,sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;overflow:hidden}.scene{text-align:center}.envelope-wrapper{position:relative;width:300px;height:200px;transition: all 0.3s ease;}.envelope-wrapper .clickable-area{position:absolute;width:100%;height:100%;cursor:pointer;z-index:10}.back{position:absolute;width:100%;height:100%;background-color:#ffc259;border-radius:10px;z-index:1}.letter{position:absolute;bottom:0;left:5%;width:90%;height:95%;background-color:white;border-radius:5px;z-index:2;transition:transform .5s ease-in-out;transform:translateY(0)}.front{position:absolute;bottom:0;width:100%;height:100%;background-color:#fdcb6e;border-radius:10px;z-index:3}.flap{position:absolute;top:0;left:0;width:100%;height:50%;background-color:#ffc259;clip-path:polygon(0 0,100% 0,50% 100%);z-index:4;transform-origin:top;transition:transform .5s ease-in-out}.envelope-wrapper.open .flap{transform:rotateX(180deg);z-index:0}.envelope-wrapper.open .letter{transform:translateY(-80px)}#open-btn{margin-top:20px;padding:15px 30px;font-size:18px;cursor:pointer;border:none;border-radius:50px;background-color:#ff7675;color:white;box-shadow:0 4px 10px rgba(0,0,0,.2);transition:all .3s}#open-btn:hover{transform:translateY(-2px);box-shadow:0 6px 15px rgba(0,0,0,.3)}.card{display:none;background-color:#fff;border-radius:15px;box-shadow:0 10px 25px rgba(0,0,0,.1);padding:40px;text-align:center;width:90%;max-width:600px;border-top:10px solid #4a90e2;animation:fadeIn .8s ease-in-out}h1{color:#333;font-size:2.5em}p{color:#555;font-size:1.2em;line-height:1.6}.signature{margin-top:30px;font-style:italic;color:#777}@keyframes fadeIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+
+        /* ШАГ 2: ДОБАВЛЯЕМ СПЕЦИАЛЬНЫЕ СТИЛИ ДЛЯ МОБИЛЬНЫХ */
+        @media (max-width: 600px) {
+            .envelope-wrapper {
+                /* Делаем конверт на 80% ширины экрана */
+                width: 80vw;
+                /* Высоту подбираем пропорционально, чтобы не исказился */
+                height: 54vw;
+            }
+
+            .envelope-wrapper.open .letter {
+                /* На мобильном письмо выезжает чуть меньше */
+                transform: translateY(-50px);
+            }
+
+            .card {
+                /* Уменьшаем отступы на карточке, чтобы текст влез */
+                padding: 25px;
+            }
+
+            .card h1 {
+                /* Уменьшаем заголовок на мобильном */
+                font-size: 2em;
+            }
+
+            .card p {
+                /* И обычный текст тоже */
+                font-size: 1em;
+            }
+        }
+
     </style>
 </head>
 <body>
 
-<!-- Путь к музыке остается относительным -->
-<audio id="birthday-music" src="music.mp3"></audio>
+<!-- HTML остается без изменений -->
 
 <div class="scene" id="envelope-scene">
     <div class="envelope-wrapper" id="envelope">
@@ -33,69 +67,49 @@
 </div>
 
 <script>
-    // --- НОВЫЙ, БОЛЕЕ НАДЕЖНЫЙ JAVASCRIPT ---
-
+    // JavaScript остается без изменений
     const openBtn = document.getElementById('open-btn');
     const envelope = document.getElementById('envelope');
     const envelopeScene = document.getElementById('envelope-scene');
     const birthdayCard = document.getElementById('birthday-card');
-    const music = document.getElementById('birthday-music');
     const clickableArea = document.querySelector('.clickable-area');
 
-    let isEnvelopeOpened = false;
-    let isMusicReady = false; // Флаг для проверки готовности музыки
+    let audio;
 
-    // Эта функция будет вызвана при первом же клике пользователя по странице
-    function prepareMusic() {
-        if (isMusicReady) return; // Запускаем только один раз
-
-        // Пытаемся запустить и сразу остановить музыку.
-        // Это "обманывает" браузер, заставляя его думать, что пользователь разрешил звук.
-        music.play().then(() => {
-            music.pause();
-            music.currentTime = 0;
-            isMusicReady = true;
-            console.log("Музыка готова к воспроизведению.");
-        }).catch(error => {
-            // Если даже это не сработало, мы увидим ошибку в консоли
-            console.error("Не удалось подготовить музыку:", error);
-        });
-    }
-
-    // Привязываем подготовку музыки к первому клику
-    openBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-
-        // Готовим музыку
-        prepareMusic();
-
+    function openEnvelope() {
         envelope.classList.add('open');
         openBtn.style.display = 'none';
-        isEnvelopeOpened = true;
-    });
 
-    clickableArea.addEventListener('click', () => {
-        // Добавляем проверку, готова ли музыка
-        if (isEnvelopeOpened) {
-            // Если музыка не готова, пробуем ее подготовить еще раз
-            if (!isMusicReady) {
-                prepareMusic();
-            }
+        if (!audio) {
+            audio = new Audio('./music.mp3');
+            audio.volume = 1.0;
+            audio.onerror = () => {
+                console.error("Не удалось загрузить файл music.mp3.");
+            };
+        }
+    }
 
-            envelopeScene.style.display = 'none';
-            birthdayCard.style.display = 'block';
+    function showCardAndPlayMusic() {
+        if (!envelope.classList.contains('open')) return;
 
-            // Теперь этот вызов должен сработать
-            music.play();
+        envelopeScene.style.display = 'none';
+        birthdayCard.style.display = 'block';
 
-            confetti({
-                particleCount: 150,
-                spread: 90,
-                origin: { y: 0.6 }
+        confetti({
+            particleCount: 150,
+            spread: 90,
+            origin: { y: 0.6 }
+        });
+
+        if (audio) {
+            audio.play().catch(error => {
+                console.error("Браузер заблокировал воспроизведение аудио:", error);
             });
         }
-    });
-</script>
+    }
 
+    openBtn.addEventListener('click', openEnvelope);
+    clickableArea.addEventListener('click', showCardAndPlayMusic);
+</script>
 </body>
 </html>
